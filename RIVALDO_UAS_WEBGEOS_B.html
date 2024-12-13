@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Peta Interaktif Rivaldo</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
+
+    
+    <style>
+    /* Pastikan elemen html dan body memenuhi layar */
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    #map {
+        position: fixed;
+        top: 56px; /* Sesuaikan dengan tinggi navbar */
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 5; /* Lebih rendah dari navbar */
+    }
+    .custom-ruler-control {
+            position: absolute;
+            bottom: 250px; /* Set posisi vertikal */
+            left: 10px; /* Set posisi horizontal */
+            z-index: 10; /* Agar berada di atas peta */
+    }
+    #track-button {
+            position: absolute;
+            bottom: 40px; /* Posisikan tombol di kiri bawah */
+            left: 10px;
+            z-index: 10;
+            padding: 10px 15px;
+            background-color: #08bccc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #track-button.active {
+            background-color: #dc3545;
+        }
+    .mapboxgl-ctrl-geocoder input[type="text"] {
+            text-indent: 20px !important; /* Sesuaikan padding untuk teks di dalamnya */
+        }
+
+    .geojson-layer :hover {
+            opacity: 2; /* Efek hover */
+        }
+    
+    #menu {
+            position: absolute;
+            bottom: 10px; /* Pastikan tidak tumpang tindih dengan geocoder */
+            left: 800px;
+            background: #efefef;
+            padding: 10px;
+            z-index: 500; /* Z-index lebih rendah dari geocoder */
+            font-family: 'Open Sans', sans-serif;
+        }
+    .control-button {
+            position: absolute;
+            bottom: 175px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            display: flex;
+            z-index: 500;
+            flex-direction: column; /* Mengubah tombol menjadi menurun */
+            align-items: center;
+            gap: 10px;
+        }
+    .control-button button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    .control-button button img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    .control-button button:hover {
+            opacity: 0.8; /* Efek hover */
+        }
+    
+    </style>
+    <link rel="stylesheet" href="node_modules/@mapbox-controls/ruler/src/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/mapbox-gl-rain-layer@latest/dist/mapbox-gl-rain-layer.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.css" type="text/css">
+    <script src='https://github.com/lukasmartinelli/mapbox-gl-inspect/releases/download/v1.3.1/mapbox-gl-inspect.js'></script>
+    <link href='https://github.com/lukasmartinelli/mapbox-gl-inspect/releases/download/v1.3.1/mapbox-gl-inspect.css' rel='stylesheet' />
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.3.1/mapbox-gl-directions.css" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/@mapbox/mapbox-gl-traffic/mapbox-gl-traffic.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@mapbox/mapbox-gl-traffic/mapbox-gl-traffic.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+</head>
+
+<body>
+    <!-- Navbar Start -->
+    </style>
+    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.3/mapbox-gl-draw.css" type="text/css">
+    <script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <!-- Navbar End -->
+    <div id="map"></div>
+    <div id="menu">
+        <input id="streets-v12" type="radio" name="rtoggle" value="OSM" checked="checked">
+    </div>
+    <div id="rulerControlContainer" class="custom-ruler-control"></div>
+    
+    <div class="control-button">
+        <button onclick="changeView(15, 0, 0)">
+            <img src="https://images.vexels.com/content/139243/preview/parallelogram-shape-rounded-corners-02b586.png" alt="View 1" title="Orthoview">
+        </button>
+        <button onclick="changeView(15, 60, -60)">
+            <img src="https://static.vecteezy.com/system/resources/previews/048/033/944/non_2x/flying-bird-silhouette-icon-with-simple-and-modern-design-png.png" alt="View 2" title="Bird-Eye View">
+        </button>
+        <button onclick="changeView(15, 60, 0)">
+            <img src="https://cdn-icons-png.flaticon.com/512/2618/2618245.png" alt="View 3" title="Reset View">
+        </button>
+    </div>
+
+    </div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1Ijoicml2YWxkbzE5OTkiLCJhIjoiY200bDU0dDk1MHZjdTJtcHF5Y3JpdGYxcCJ9.Ta1gND_DH2dr6F9BVT01jw';
+        
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [ 110.4093844, -6.984022], // Initial map center
+            projection: 'globe',
+            zoom: 17,
+            pitch: 60,
+            bearing: 0
+        });
+
+        map.on('style.load', () => {
+        map.setFog({
+            color: 'rgb(186, 210, 235)', // Lower atmosphere
+            'high-color': 'rgb(36, 92, 223)', // Upper atmosphere
+            'horizon-blend': 0.02, // Atmosphere thickness (default 0.2 at low zooms)
+            'space-color': 'rgb(11, 11, 25)', // Background color
+            'star-intensity': 0.6 // Background star brightness (default 0.35 at low zoooms )
+        });
+        });
+        
+        const nav = new mapboxgl.NavigationControl({ showCompass: true });
+        map.addControl(nav, 'bottom-right');
+
+        function changeView(zoom, pitch, bearing) {
+            map.flyTo({
+                zoom: zoom,
+                pitch: pitch,
+                bearing: bearing,
+                duration: 2000 // Durasi animasi dalam milidetik
+            });
+        };
+        
+        const layerList = document.getElementById('menu');
+        const inputs = layerList.getElementsByTagName('input');
+    
+        for (const input of inputs) {
+            input.onclick = (layer) => {
+                const layerId = layer.target.id;
+                map.setStyle('mapbox://styles/mapbox/' + layerId);
+            };
+        }
+        
+        const modelOrigin = [110.374298,    -7.786487];
+        const modelAltitude = 0;
+        const modelRotate = [Math.PI / 2, -0.025, 0];
+
+        const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+            modelOrigin,
+            modelAltitude
+        );
+
+        // transformation parameters to position, rotate and scale the 3D model onto the map
+        const modelTransform = {
+            translateX: modelAsMercatorCoordinate.x,
+            translateY: modelAsMercatorCoordinate.y,
+            translateZ: modelAsMercatorCoordinate.z,
+            rotateX: modelRotate[0],
+            rotateY: modelRotate[1],
+            rotateZ: modelRotate[2],
+            /* Since the 3D model is in real world meters, a scale transform needs to be
+            * applied since the CustomLayerInterface expects units in MercatorCoordinates.
+            */
+            scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
+        };
+
+        const THREE = window.THREE;
+
+        // configuration of the custom layer for a 3D model per the CustomLayerInterface
+        const customLayer = {
+            id: '3d-model',
+            type: 'custom',
+            renderingMode: '3d',
+            onAdd: function (map, gl) {
+                this.camera = new THREE.Camera();
+                this.scene = new THREE.Scene();
+
+                // create two three.js lights to illuminate the model
+                const directionalLight = new THREE.DirectionalLight(0xffffff);
+                directionalLight.position.set(0, -60, 60).normalize();
+                this.scene.add(directionalLight);
+
+                const directionalLight2 = new THREE.DirectionalLight(0xffffff);
+                directionalLight2.position.set(0, 70, 60).normalize();
+                this.scene.add(directionalLight2);
+
+                // use the three.js GLTF loader to add the 3D model to the three.js scene
+                const loader = new THREE.GLTFLoader();
+                //loader.load(
+                    //'/img/lod2.glb',
+                    //(gltf) => {
+                        //this.scene.add(gltf.scene);
+                        //opacity:10
+                    //}
+                //);
+                this.map = map;
+
+                // use the Mapbox GL JS map canvas for three.js
+                this.renderer = new THREE.WebGLRenderer({
+                    canvas: map.getCanvas(),
+                    context: gl,
+                    antialias: true
+                });
+
+                this.renderer.autoClear = false;
+            },
+            render: function (gl, matrix) {
+                const rotationX = new THREE.Matrix4().makeRotationAxis(
+                    new THREE.Vector3(1, 0, 0),
+                    modelTransform.rotateX
+                );
+                const rotationY = new THREE.Matrix4().makeRotationAxis(
+                    new THREE.Vector3(0, 1, 0),
+                    modelTransform.rotateY
+                );
+                const rotationZ = new THREE.Matrix4().makeRotationAxis(
+                    new THREE.Vector3(0, 0, 1),
+                    modelTransform.rotateZ
+                );
+
+                const m = new THREE.Matrix4().fromArray(matrix);
+                const l = new THREE.Matrix4()
+                    .makeTranslation(
+                        modelTransform.translateX,
+                        modelTransform.translateY,
+                        modelTransform.translateZ
+                    )
+                    .scale(
+                        new THREE.Vector3(
+                            modelTransform.scale,
+                            -modelTransform.scale,
+                            modelTransform.scale
+                        )
+                    )
+                    .multiply(rotationX)
+                    .multiply(rotationY)
+                    .multiply(rotationZ);
+
+                this.camera.projectionMatrix = m.multiply(l);
+                this.renderer.resetState();
+                this.renderer.render(this.scene, this.camera);
+                this.map.triggerRepaint();
+            }
+        };
+
+        map.on('style.load', () => {
+            // Insert the layer beneath any symbol layer.
+            const layers = map.getStyle().layers;
+            const labelLayerId = layers.find(
+                (layer) => layer.type === 'symbol' && layer.layout['text-field']
+            ).id;
+
+            // The 'building' layer in the Mapbox Streets
+            // vector tileset contains building height data
+            // from OpenStreetMap.
+            map.addLayer(
+                {
+                    'id': 'add-3d-buildings',
+                    'source': 'composite',
+                    'source-layer': 'building',
+                    'filter': ['==', 'extrude', 'true'],
+                    'type': 'fill-extrusion',
+                    'minzoom': 15,
+                    'paint': {
+                        'fill-extrusion-color': '#F26B0F',
+
+                        // Use an 'interpolate' expression to
+                        // add a smooth transition effect to
+                        // the buildings as the user zooms in.
+                        'fill-extrusion-height': [
+                            'interpolate',
+                            ['linear'],
+                            ['zoom'],
+                            15,
+                            0,
+                            15.05,
+                            ['get', 'height']
+                        ],
+                        'fill-extrusion-base': [
+                            'interpolate',
+                            ['linear'],
+                            ['zoom'],
+                            15,
+                            0,
+                            15.05,
+                            ['get', 'min_height']
+                        ],
+                        'fill-extrusion-opacity': 0.6
+                    }
+                },
+                labelLayerId
+            );
+        });
+
+        map.on('style.load', () => {
+            map.addLayer(customLayer, 'waterway-label');
+        });
+
+        map.on('style.load', () => {
+        //map.addSource('mapbox-dem', {
+        //    'type': 'raster-dem',
+        //    'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+        //    'tileSize': 512,
+        //    'maxzoom': 14
+        //});
+        // add the DEM source as a terrain layer with exaggerated height
+        // map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+       
+        map.on('load', function() {
+            const script = document.createElement('script');
+            script.src = 'node_modules/@mapbox-controls/ruler';
+            script.onload = function() {
+                // Inisialisasi RulerControl dan tambahkan ke elemen khusus
+                const rulerControl = new RulerControl();
+                map.addControl(rulerControl); // Pastikan kontrol diaktifkan pada peta
+
+                // Pindahkan elemen kontrol ke dalam kontainer khusus
+                const controlElement = document.querySelector('.mapboxgl-ctrl-ruler');
+                const rulerContainer = document.getElementById('rulerControlContainer');
+                rulerContainer.appendChild(controlElement);
+            };
+            document.body.appendChild(script);
+        });      
+    });
+
+    </script>
+
+    <!-- Back to Top -->
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/wow/wow.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navbar = document.querySelector('.navbar');
+            const map = document.getElementById('map');
+
+            const adjustMapPosition = () => {
+                const navbarHeight = navbar ? navbar.offsetHeight : 0;
+                map.style.top = `${navbarHeight}px`;
+            };
+
+            window.addEventListener('resize', adjustMapPosition);
+            adjustMapPosition();
+        });
+    </script>
+</body>
+
+</html>
